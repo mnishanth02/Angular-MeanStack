@@ -1,27 +1,37 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Post } from './post.model';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { map } from "rxjs/operators";
+import { Post } from "./post.model";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class PostService {
-
   private postsList: Post[] = [];
 
   private addPostSubject = new Subject<Post[]>();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getPostsList() {
-
-    this.http.get<{ mesage: string, posts: Post[] }>('http://localhost:3000/api/posts').subscribe((postData) => {
-      this.postsList = postData.posts;
-      this.addPostSubject.next([...this.postsList]);
-    });
-
+    this.http
+      .get<{ mesage: string; posts: any }>("http://localhost:3000/api/posts")
+      .pipe(
+        map(postData => {
+          return postData.posts.map(post => {
+            return {
+              postTitle: post.postTitle,
+              postContent: post.postContent,
+              id: post._id
+            };
+          });
+        })
+      )
+      .subscribe(transformedPost => {
+        this.postsList = transformedPost;
+        this.addPostSubject.next([...this.postsList]);
+      });
   }
 
   getPostUpdateListener() {
@@ -34,23 +44,26 @@ export class PostService {
       postTitle: title,
       postContent: content
     };
-    this.http.post<{ message: string; posts: any }>('http://localhost:3000/api/posts', post)
-      .pipe(map(data => {
-        return data.posts.map(post => {
-          return {
-            postTitle: post.postTitle,
-            postContent: post.postContent,
-            id: post._id
-          };
-        });
-      })).subscribe(finalPost => {
-        console.log(finalPost);
-        this.postsList.push(finalPost);
+    this.http
+      .post<{ message: string, postId: string }>("http://localhost:3000/api/posts", post)
+      .subscribe(responseData => {
+        // console.log('Post Message :' + finalPost.message);
+        console.log("Post Message :" + responseData.message);
+        const id = responseData.postId;
+        post.id = id;
+        this.postsList.push(post);
         this.addPostSubject.next([...this.postsList]);
+        console.log(...this.postsList);
       });
   }
 
   deletePost(postId: string) {
-    this.http.delete
+    this.http
+      .delete("http://localhost:3000/api/posts/" + postId)
+      .subscribe(() => {
+        const updatedPost = this.postsList.filter(post => post.id !== postId);
+        this.postsList = updatedPost;
+        this.addPostSubject.next([...this.postsList]);
+      });
   }
 }
