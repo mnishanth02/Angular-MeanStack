@@ -14,6 +14,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { PostCreateComponent } from './posts/post-create/post-create.component';
 import { HeaderComponent } from './header/header.component';
 import { PostsListComponent } from './posts/posts-list/posts-list.component';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { PostsListComponent } from './posts/posts-list/posts-list.component';
   imports: [
     BrowserModule,
     FormsModule,
+    AppRoutingModule,
     BrowserAnimationsModule,
     MatInputModule,
     MatCardModule,
