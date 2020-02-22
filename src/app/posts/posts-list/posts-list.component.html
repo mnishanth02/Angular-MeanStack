@@ -1,4 +1,5 @@
-<mat-accordion multi="true" *ngIf="postArrays.length > 0">
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<mat-accordion multi="true" *ngIf="postArrays.length > 0 && !isLoading">
   <mat-expansion-panel *ngFor="let postArray of postArrays">
     <mat-expansion-panel-header>
       <mat-panel-title>
@@ -12,12 +13,12 @@
 
     <p>{{postArray.postContent}}</p>
     <mat-action-row>
-      <button mat-raised-button color="primary">EDIT</button>
+      <a [routerLink]="['edit', postArray.id]" mat-raised-button color="primary">EDIT</a>
       <button mat-raised-button (click)="onDelete(postArray.id)" color="warn">DELETE</button>
     </mat-action-row>
   </mat-expansion-panel>
 
 </mat-accordion>
-  <span *ngIf="postArrays.length <= 0"  class="info-text mat-body"> No post createt Yet</span>
+  <span *ngIf="postArrays.length <= 0 && !isLoading"  class="info-text mat-body"> No post createt Yet</span>
 
 
