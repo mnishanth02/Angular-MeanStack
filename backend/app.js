@@ -1,6 +1,8 @@
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const multer = require("multer");
 
 const postsRoutes = require("./routes/posts");
 
@@ -20,7 +22,10 @@ mongoose
 const app = express();
 
 app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({ extended: false }));
+// reqiest is forwarded to backend images
+app.use("/images", express.static(path.join("backend/images")));
+//app.use(multer({dest:'./backend/images/'}).single('image'));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -32,6 +37,14 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "GET, POST, PATCH, DELETE, PUT, OPTIONS"
   );
+ // res.setHeader("Content-Type", "multipart/form-data");
+  //res.setHeader("Accept", "application/json");
+
+  res.set({
+    "Content-Type": "multipart/form-data",
+    "Accept": "application/json"
+  });
+
   next();
 });
 

@@ -3,22 +3,24 @@
   <mat-expansion-panel *ngFor="let postArray of postArrays">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        {{postArray.postTitle}}
+        {{ postArray.postTitle }}
       </mat-panel-title>
-
-      <mat-panel-description>
-
-      </mat-panel-description>
     </mat-expansion-panel-header>
-
-    <p>{{postArray.postContent}}</p>
+    <div class="post-image">
+      <img [src]="postArray.imagePath" name="image" [alt]="postArray.postTitle" />
+    </div>
+    <p>{{ postArray.postContent }}</p>
+   
     <mat-action-row>
-      <a [routerLink]="['edit', postArray.id]" mat-raised-button color="primary">EDIT</a>
-      <button mat-raised-button (click)="onDelete(postArray.id)" color="warn">DELETE</button>
+      <a [routerLink]="['edit', postArray.id]" mat-raised-button color="primary"
+        >EDIT</a
+      >
+      <button mat-raised-button (click)="onDelete(postArray.id)" color="warn">
+        DELETE
+      </button>
     </mat-action-row>
   </mat-expansion-panel>
-
 </mat-accordion>
-  <span *ngIf="postArrays.length <= 0 && !isLoading"  class="info-text mat-body"> No post createt Yet</span>
-
-
+<span *ngIf="postArrays.length <= 0 && !isLoading" class="info-text mat-body">
+  No post createt Yet</span
+>

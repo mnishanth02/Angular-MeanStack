@@ -1,25 +1,65 @@
 const express = require("express");
+const multer = require("multer");
 
 const Post = require("../models/post");
-
 const router = express.Router();
 
-router.post("", (req, res, next) => {
-  const post = new Post({
-    postTitle: req.body.postTitle,
-    postContent: req.body.postContent
-  });
-  post.save().then(createdPost => {
-    res.status(201).json({
-      message: "Post Send successfully",
-      postId: createdPost._id
-    });
-  });
+const MIME_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg"
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    console.log("file: " + file  );
+    const isValid = MIME_TYPE_MAP[file.mimetype];
+    let error = new Error("Invalid Mime Type");
+    if (isValid) {
+      error = null;
+    }
+    console.log("error : " + error);
+    //cb(error, "backend/images/");
+    cb(error, 'backend/images/');
+  },
+  filename: (req, file, cb) => {
+    const name = file.originalname
+      .toLowerCase()
+      .split(" ")
+      .join("-");
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + "-" + Date.now() + "." + ext);
+  }
 });
+
+var uploading =  multer({storage: storage}).single('image');
+
+router.post(
+  "", uploading,
+  (req, res, next) => {
+    const url = req.protocol + "://" + req.get("host");
+    const post = new Post({
+      postTitle: req.body.postTitle,
+      postContent: req.body.postContent,
+      imagePath: url + "/images/" + req.file.filename
+    });
+    post.save().then(createdPost => {
+      res.status(201).json({
+        message: "Post Send successfully",
+        post:  {
+          id: createdPost._id,
+          postTitle: createdPost.postTitle,
+          postContent: createdPost.postContent,
+          imagePath: createdPost.imagePath
+        }
+      });
+    });
+  }
+);
 
 router.get("", (req, res, next) => {
   Post.find().then(docs => {
-    console.log(docs);
+    // console.log(docs);
 
     res.status(200).json({
       message: "post get successful",
@@ -38,11 +78,17 @@ router.get("/:id", (req, res, next) => {
   });
 });
 
-router.put("/:id", (req, res, next) => {
+router.put("/:id", uploading, (req, res, next) => {
+let imagePath = req.body.imagePath;
+  if(req.file) {
+    const url = req.protocol + "://" + req.get("host");
+    imagePath = url + "/images/" + req.file.filename
+  } 
   const post = new Post({
     _id: req.body.id,
     postTitle: req.body.postTitle,
-    postContent: req.body.postContent
+    postContent: req.body.postContent,
+    imagePath: imagePath
   });
   Post.updateOne({ _id: req.params.id }, post).then(result => {
     res.status(200).json({ message: "update Successfull" });
