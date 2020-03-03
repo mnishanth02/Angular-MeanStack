@@ -12,7 +12,7 @@ const MIME_TYPE_MAP = {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log("file: " + file  );
+    console.log("file: " + file);
     const isValid = MIME_TYPE_MAP[file.mimetype];
     let error = new Error("Invalid Mime Type");
     if (isValid) {
@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     }
     console.log("error : " + error);
     //cb(error, "backend/images/");
-    cb(error, 'backend/images/');
+    cb(error, "backend/images/");
   },
   filename: (req, file, cb) => {
     const name = file.originalname
@@ -32,40 +32,49 @@ const storage = multer.diskStorage({
   }
 });
 
-var uploading =  multer({storage: storage}).single('image');
+var uploading = multer({ storage: storage }).single("image");
 
-router.post(
-  "", uploading,
-  (req, res, next) => {
-    const url = req.protocol + "://" + req.get("host");
-    const post = new Post({
-      postTitle: req.body.postTitle,
-      postContent: req.body.postContent,
-      imagePath: url + "/images/" + req.file.filename
-    });
-    post.save().then(createdPost => {
-      res.status(201).json({
-        message: "Post Send successfully",
-        post:  {
-          id: createdPost._id,
-          postTitle: createdPost.postTitle,
-          postContent: createdPost.postContent,
-          imagePath: createdPost.imagePath
-        }
-      });
-    });
-  }
-);
-
-router.get("", (req, res, next) => {
-  Post.find().then(docs => {
-    // console.log(docs);
-
-    res.status(200).json({
-      message: "post get successful",
-      posts: docs
+router.post("", uploading, (req, res, next) => {
+  const url = req.protocol + "://" + req.get("host");
+  const post = new Post({
+    postTitle: req.body.postTitle,
+    postContent: req.body.postContent,
+    imagePath: url + "/images/" + req.file.filename
+  });
+  post.save().then(createdPost => {
+    res.status(201).json({
+      message: "Post Send successfully",
+      post: {
+        id: createdPost._id,
+        postTitle: createdPost.postTitle,
+        postContent: createdPost.postContent,
+        imagePath: createdPost.imagePath
+      }
     });
   });
+});
+
+router.get("", (req, res, next) => {
+  const pageSize = +req.query.pageSize;
+  const currentPage = +req.query.page;
+  const postQuery = Post.find();
+  let fetchedPost;
+  if (pageSize && currentPage) {
+    postQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+  }
+
+  postQuery
+    .then(doc => {
+      fetchedPost = doc;
+      return Post.count();
+    })
+    .then(count => {
+      res.status(200).json({
+        message: "post get successful",
+        posts: fetchedPost,
+        maxPosts: count
+      });
+    });
 });
 
 router.get("/:id", (req, res, next) => {
@@ -79,11 +88,11 @@ router.get("/:id", (req, res, next) => {
 });
 
 router.put("/:id", uploading, (req, res, next) => {
-let imagePath = req.body.imagePath;
-  if(req.file) {
+  let imagePath = req.body.imagePath;
+  if (req.file) {
     const url = req.protocol + "://" + req.get("host");
-    imagePath = url + "/images/" + req.file.filename
-  } 
+    imagePath = url + "/images/" + req.file.filename;
+  }
   const post = new Post({
     _id: req.body.id,
     postTitle: req.body.postTitle,

@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'mean-course';
+  userName: string;
+
+  login(updatedValue) {
+    this.userName = updatedValue;
+  }
 }

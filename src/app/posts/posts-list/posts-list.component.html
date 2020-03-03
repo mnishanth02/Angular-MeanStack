@@ -7,10 +7,14 @@
       </mat-panel-title>
     </mat-expansion-panel-header>
     <div class="post-image">
-      <img [src]="postArray.imagePath" name="image" [alt]="postArray.postTitle" />
+      <img
+        [src]="postArray.imagePath"
+        name="image"
+        [alt]="postArray.postTitle"
+      />
     </div>
     <p>{{ postArray.postContent }}</p>
-   
+
     <mat-action-row>
       <a [routerLink]="['edit', postArray.id]" mat-raised-button color="primary"
         >EDIT</a
@@ -21,6 +25,15 @@
     </mat-action-row>
   </mat-expansion-panel>
 </mat-accordion>
+<mat-paginator 
+*ngIf="postArrays.length > 0"
+  [length]="totalPost"
+  [pageSize]="postPerPage"
+  [pageSizeOptions]="pageSizeOption"
+  (page)="onPageChange($event)"
+>
+</mat-paginator>
+
 <span *ngIf="postArrays.length <= 0 && !isLoading" class="info-text mat-body">
   No post createt Yet</span
 >

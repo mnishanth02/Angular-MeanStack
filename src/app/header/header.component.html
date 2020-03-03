@@ -1,9 +1,16 @@
 <mat-toolbar color="primary">
-  <span
-    ><a [routerLink]="['/']" routerLinkActive="router-active"> My Messages</a>
+  <span>
+    <a [routerLink]="['/']" routerLinkActive="router-active"> My Messages</a>
   </span>
   <span class="spacer"></span>
   <ul>
-    <a mat-button [routerLink]="['/create']" routerLinkActive="active"> Create Post</a>
+    <li>
+      <a mat-button [routerLink]="['/create']" routerLinkActive="active">
+        Create Post</a>
+    </li>
+    <li>
+      <a mat-button [routerLink]="['/login']" routerLinkActive="active">
+        Login</a>
+    </li>
   </ul>
 </mat-toolbar>
