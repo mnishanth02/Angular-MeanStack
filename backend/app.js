@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 
 const postsRoutes = require("./routes/posts");
+const userRoutes = require("./routes/user");
 
 mongoose.set("debug", true);
 
@@ -49,5 +50,6 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/posts", postsRoutes);
+app.use("/api/user", userRoutes);
 
 module.exports = app;
