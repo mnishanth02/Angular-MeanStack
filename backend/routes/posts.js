@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 
 const Post = require("../models/post");
+const checkAuth = require('../middleware/check-auth');
 const router = express.Router();
 
 const MIME_TYPE_MAP = {
@@ -34,7 +35,7 @@ const storage = multer.diskStorage({
 
 var uploading = multer({ storage: storage }).single("image");
 
-router.post("", uploading, (req, res, next) => {
+router.post("",  uploading, (req, res, next) => {
   const url = req.protocol + "://" + req.get("host");
   const post = new Post({
     postTitle: req.body.postTitle,
@@ -104,7 +105,7 @@ router.put("/:id", uploading, (req, res, next) => {
   });
 });
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", checkAuth, (req, res, next) => {
   Post.deleteOne({ _id: req.params.id }).then(result => {
     console.log("response : " + result);
     res.status(200).json({ message: "Post Deleted" });
